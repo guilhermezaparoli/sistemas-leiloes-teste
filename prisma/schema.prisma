@@ -1,0 +1,23 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Leilao {
+  id        String   @id @default(cuid())
+  nome      String
+  preco     Float
+  status    String
+  lances    Lance[]
+  createdAt DateTime @default(now())
+  tempoMax  Int      @default(5)
+}
+
+model Lance {
+  id        String   @id @default(cuid())
+  leilaoId  String
+  usuario   String
+  valor     Float
+  createdAt DateTime @default(now())
+  leilao    Leilao   @relation(fields: [leilaoId], references: [id])
+}
