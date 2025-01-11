@@ -2,6 +2,9 @@
 
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useState } from 'react';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
@@ -36,39 +39,38 @@ export default function Dashboard() {
           mutation.mutate(novoLeilao);
           setNovoLeilao({ nome: '', preco: 0 });
         }}
-        className="mb-4"
+        className="mb-4 flex flex-wrap gap-2"
       >
-        <input
+        <Input
           type="text"
           placeholder="Nome do Item"
           value={novoLeilao.nome}
           onChange={(e) => setNovoLeilao({ ...novoLeilao, nome: e.target.value })}
-          className="border border-gray-300 p-2 rounded mr-2"
+          className="mr-2 max-w-56"
         />
-        <input
+        <Input
           type="number"
           placeholder="Preço de Referência"
           value={novoLeilao.preco}
           onChange={(e) => setNovoLeilao({ ...novoLeilao, preco: Number(e.target.value) })}
-          className="border border-gray-300 p-2 rounded mr-2"
+          className="mr-2 max-w-56"
         />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Criar Leilão
-        </button>
+        <Button type="submit">Criar Leilão</Button>
       </form>
       <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {leiloes.map((leilao: any) => (
-          <li key={leilao.id} className="bg-white p-4 shadow rounded">
-            <h2 className="text-lg font-semibold">{leilao.nome}</h2>
-            <p>Preço de Referência: R$ {leilao.preco}</p>
-            <p>Status: {leilao.status}</p>
-            <a href={`/leiloes/${leilao.id}`} className="text-blue-600 hover:underline">
-              Ver detalhes
-            </a>
-          </li>
+          <Card key={leilao.id} className="shadow">
+            <CardHeader>
+              <CardTitle>{leilao.nome}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p >Preço de Referência: R$ {leilao.preco}</p>
+              <p>Status: {leilao.status}</p>
+              <a href={`/leiloes/${leilao.id}`} className="text-blue-600 hover:underline">
+                Ver detalhes
+              </a>
+            </CardContent>
+          </Card>
         ))}
       </ul>
     </div>

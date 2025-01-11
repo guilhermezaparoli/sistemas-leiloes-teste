@@ -11,7 +11,6 @@ export const config = {
 let io: IOServer | undefined;
 
 export async function GET(req: NextApiRequest) {
-  // Inicializa o servidor do Socket.IO apenas uma vez
   if (!io) {
     console.log('Iniciando servidor Socket.IO...');
     const httpServer = req.socket.server;

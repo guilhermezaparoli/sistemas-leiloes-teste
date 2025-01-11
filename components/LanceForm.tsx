@@ -11,6 +11,7 @@ type LanceFormProps = {
 
 type FormData = {
   valor: number;
+  usuario: string
 };
 
 export default function LanceForm({ leilaoId }: LanceFormProps) {

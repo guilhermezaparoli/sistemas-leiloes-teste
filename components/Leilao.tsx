@@ -1,13 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import socket from '@/utils/getSocket';
 import Link from 'next/link';
 import getUserId from '@/utils/getUserId';
 import getSocket from '@/utils/getSocket';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
 
-export default function Leilao({ leilaoId }: { leilaoId: string }) {
-  const [lances, setLances] = useState([]);
+
+type lances = {
+  id: string;
+  leilaoId:  string | string[] | undefined;
+  usuario: string;
+  valor: number
+}
+
+export default function Leilao({ leilaoId }: { leilaoId: string | string[] | undefined }) {
+  const [lances, setLances] = useState<lances[]>([]);
   const [encerrado, setEncerrado] = useState(false);
   const [novoLance, setNovoLance] = useState('');
   const [ultimoLance, setUltimoLance] = useState<Date | null>(null);
@@ -41,12 +50,12 @@ export default function Leilao({ leilaoId }: { leilaoId: string }) {
   };
 
   useEffect(() => {
-    socket.emit('obter-lances', leilaoId, (lancesDoServidor) => {
+    socket.emit('obter-lances', leilaoId, (lancesDoServidor: []) => {
       console.log('Lances recebidos do servidor:', lancesDoServidor);
       setLances(lancesDoServidor);
     });
 
-    socket.emit('obter-tempo', leilaoId, (tempo) => {
+    socket.emit('obter-tempo', leilaoId, (tempo: number) => {
       console.log('Tempo restante inicial:', tempo);
       setTempoRestante(tempo);
     });
@@ -63,55 +72,55 @@ export default function Leilao({ leilaoId }: { leilaoId: string }) {
     }, 1000);
     
 
-    // Escuta novos lances
     socket.on(`lance-${leilaoId}`, (lance) => {
       setLances((prev) => [...prev, lance]);
     });
 
-    // Escuta encerramento do leilão
     socket.on(`encerrado-${leilaoId}`, ({ vencedor, valorFinal }) => {
       setEncerrado(true);
       alert(`Leilão encerrado! Vencedor: ${vencedor}, Valor final: R$ ${valorFinal}`);
     });
 
     return () => {
-      clearInterval(interval); // Limpa o intervalo ao desmontar o componente
+      clearInterval(interval);
       socket.off(`lance-${leilaoId}`);
       socket.off(`encerrado-${leilaoId}`);
     };
   }, [leilaoId, ultimoLance]);
 
+
   return (
     <div>
    
         <>
-          <Link href="/leiloes">Voltar</Link>
+          <Link href="/leiloes" className='text-blue-600'>Voltar</Link>
           <h2 className="text-lg font-bold mt-4"> {encerrado ? "Leilão encerrado" : `Tempo Restante: ${formatarTempo(tempoRestante)}`}  </h2>
           <p>Lances:</p>
           <ul>
             {lances.map((lance, index) => (
-              <li key={index}>
+              <li key={index} className={`${lances.length - 1 === index && "bg-green-400 inline"}`}>
                 {lance.usuario}: R$ {lance.valor.toFixed(2)}
               </li>
             ))}
           </ul>
 
-          <div className="mt-4">
-            <input
+          <div className="mt-4 flex flex-wrap">
+            <Input
               type="number"
               step="0.01"
               placeholder="Digite seu lance"
               value={novoLance}
               onChange={(e) => setNovoLance(e.target.value)}
-              className="border border-gray-300 rounded px-4 py-2 mr-2"
+              className="border border-gray-300 rounded px-4 py-2 mr-2 max-w-56"
+              disabled={encerrado}
             />
-            <button
+            <Button
               onClick={enviarLance}
               className="bg-blue-500 text-white px-4 py-2 rounded"
-              disabled={!novoLance || isNaN(Number(novoLance))}
+              disabled={!novoLance || isNaN(Number(novoLance)) || encerrado}
             >
               Enviar Lance
-            </button>
+            </Button>
           </div>
         </>
     

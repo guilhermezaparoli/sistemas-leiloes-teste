@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../utils/prisma'
 
-// Método GET para listar leilões
+
 export async function GET() {
   try {
     const leiloes = await prisma.leilao.findMany();
@@ -13,7 +13,7 @@ export async function GET() {
   }
 }
 
-// Método POST para criar novos leilões
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();

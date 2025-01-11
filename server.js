@@ -19,7 +19,6 @@ app.prepare().then(() => {
   });
 
   io.setMaxListeners(200);
-  const leiloesAtivos = new Map();
 
   io.on('connection', (socket) => {
     console.log(`Cliente conectado: ${socket.id}`);
@@ -48,7 +47,6 @@ app.prepare().then(() => {
       }
     });
 
-    // Evento para buscar lances existentes
     socket.on('obter-lances', async (leilaoId, callback) => {
       try {
         console.log(`Buscando lances para o leilão: ${leilaoId}`);
@@ -64,7 +62,6 @@ app.prepare().then(() => {
     });
     socket.on('obter-tempo', async (leilaoId, callback) => {
       try {
-        // Buscar o leilão no banco de dados
         const leilao = await prisma.leilao.findUnique({
           where: { id: leilaoId },
           select: {
@@ -77,13 +74,12 @@ app.prepare().then(() => {
           return callback({ error: 'Leilão não encontrado' });
         }
     
-       // Calcular o tempo restante
-    const tempoMaximo = 5 * 60 * 1000; // Tempo máximo em milissegundos
-    const tempoInicio = new Date(leilao.createdAt).getTime(); // Timestamp de criação
-    const agora = new Date().getTime(); // Timestamp atual
-    const tempoDecorrido = agora - tempoInicio; // Diferença entre o tempo atual e o tempo de criação
+    const tempoMaximo = 5 * 60 * 1000; 
+    const tempoInicio = new Date(leilao.createdAt).getTime(); 
+    const agora = new Date().getTime(); 
+    const tempoDecorrido = agora - tempoInicio; 
 
-    const tempoRestante = Math.max(0, tempoMaximo - tempoDecorrido); // Garantir que não seja negativo
+    const tempoRestante = Math.max(0, tempoMaximo - tempoDecorrido);
 
     console.log('Tempo máximo:', tempoMaximo);
     console.log('Tempo início (ms):', tempoInicio);
@@ -91,7 +87,16 @@ app.prepare().then(() => {
     console.log('Tempo decorrido (ms):', tempoDecorrido);
     console.log('Tempo restante (ms):', tempoRestante);
 
-    // Retornar o tempo restante em milissegundos
+    if(tempoRestante === 0){
+      await prisma.leilao.update({
+        where: {
+          id: leilaoId
+        },
+        data: {
+          status: "Encerrado"
+        }
+      })
+    }
     callback(tempoRestante);
       } catch (error) {
         console.error('Erro ao calcular o tempo restante:', error.message);

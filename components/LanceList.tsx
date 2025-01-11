@@ -19,16 +19,11 @@ export default function LanceList({ leilaoId }: LanceListProps) {
   const socket = getSocket();
 
   useEffect(() => {
-    // socket.connect();
-
-    // Adicionar listener para obter lances existentes
     const handleObterLances = (lancesExistentes: Lance[]) => {
       setLances(lancesExistentes);
     };
 
     socket.emit('obter-lances', leilaoId, handleObterLances);
-
-    // Adicionar listener para novos lances em tempo real
     const handleNovoLance = (lance: Lance) => {
       setLances((prev) => [...prev, lance]);
     };
@@ -36,7 +31,6 @@ export default function LanceList({ leilaoId }: LanceListProps) {
     socket.on(`lance-${leilaoId}`, handleNovoLance);
 
     return () => {
-      // Remover ouvintes ao desmontar o componente
       socket.off(`lance-${leilaoId}`, handleNovoLance);
     };
   }, [leilaoId]);

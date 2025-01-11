@@ -10,7 +10,7 @@ function getSocket(): Socket {
       autoConnect: false,
       query: {
         userId: getUserId()
-      } // Não conectar automaticamente
+      }
     },);
   }
   return socket;
